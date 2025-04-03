@@ -1,0 +1,55 @@
+const fs = require('fs')
+const input = fs.readFileSync(0).toString().trim().split('\n')
+
+const [N, M, L, K] = input.shift().split(' ').map(Number)
+
+const stars = []
+const map = new Map();
+
+for (let i = 0; i < K; ++i) {
+    const [x, y] = input[i].split(' ').map(Number)
+    stars.push([x, y])
+    if (!map.has(x)) map.set(x, [y])
+    else map.get(x).push(y)
+}
+
+stars.sort((a, b) => a[0] - b[0])
+let answer = 0;
+
+for (let i = 0; i < stars.length; ++i) {
+    answer = Math.max(answer, sweepY(sweepX(i)))
+}
+
+console.log(K - answer)
+
+function sweepX(idx) {
+    const yMap = [];
+
+    let start = stars[idx][0];
+    let end = start;
+    for (let i = idx; i < stars.length; ++i) {
+        if (stars[i][0] > start + L) break;
+        end = stars[i][0];
+        yMap.push(stars[i][1]) 
+    }
+
+    return yMap.sort((a, b) => a - b); 
+}
+
+function sweepY(ary) {
+    let s = 0;
+    let e = 0;
+
+    let max = -1;
+    let cnt = 0;
+    while (e < ary.length) {
+        if (ary[e] - ary[s] > L) {
+            ++s;
+            --cnt;
+            continue;
+        }
+        ++e;
+        max = Math.max(++cnt, max)
+    }
+    return max;
+}
